@@ -2,11 +2,10 @@ with sessions_paid as (
     select
         *,
         case
-            when medium != 'organic' then 0
+            when medium = 'organic' then 0
             else 1
         end as paid_click
     from sessions
-    where medium != 'organic'
 ),
 
 tab_leads as (
@@ -32,6 +31,7 @@ tab_leads as (
         on
             sp.visitor_id = l.visitor_id
             and sp.visit_date <= l.created_at
+    where medium != 'organic'
 )
 
 select
