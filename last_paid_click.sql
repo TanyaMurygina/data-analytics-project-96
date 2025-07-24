@@ -1,36 +1,26 @@
-with sessions_paid as (
+with tab_leads as (
     select
-        *,
-        case
-            when medium = 'organic' then 0
-            else 1
-        end as paid_click
-    from sessions
-),
-
-tab_leads as (
-    select
-        sp.visitor_id,
-        sp.visit_date,
-        sp.source as utm_source,
-        sp.medium as utm_medium,
-        sp.campaign as utm_campaign,
+        s.visitor_id,
+        s.visit_date,
+        s.source as utm_source,
+        s.medium as utm_medium,
+        s.campaign as utm_campaign,
         l.lead_id,
         l.created_at,
         l.amount,
         l.closing_reason,
         l.status_id,
         row_number() over (
-            partition by sp.visitor_id
-            order by sp.paid_click desc, sp.visit_date desc
+            partition by s.visitor_id
+            order by s.visit_date desc
         ) as r_number
     from
-        sessions_paid
-            as sp
+        sessions
+            as s
     left join leads as l
         on
-            sp.visitor_id = l.visitor_id
-            and sp.visit_date <= l.created_at
+            s.visitor_id = l.visitor_id
+            and s.visit_date <= l.created_at
     where medium != 'organic'
 )
 
