@@ -16,12 +16,12 @@ with tab_leads as (
         ) as r_number
     from
         sessions
-            as s
+as s
     left join leads as l
         on
             s.visitor_id = l.visitor_id
             and s.visit_date <= l.created_at
-    where medium != 'organic'
+    where s.medium != 'organic'
 ),
 
 vitrina as (

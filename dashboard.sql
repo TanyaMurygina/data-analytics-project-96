@@ -1,7 +1,7 @@
 --Сколько у нас пользователей заходят на сайт?
 select
     to_char(visit_date, 'MONTH') as visits_month,
-    count(distinct visitor_id)
+    count(distinct visitor_id) as count_visitors
 from sessions
 group by visits_month;
 
@@ -26,7 +26,7 @@ from tab as t;
 --Сколько лидов к нам приходят?
 select
     to_char(created_at, 'MONTH') as leads_month,
-    count(distinct lead_id)
+    count(distinct lead_id) as leads_count
 from leads
 group by leads_month;
 
@@ -34,9 +34,9 @@ group by leads_month;
 select
     s.source, --s.medium, s.campaign,
     count(s.visitor_id) as visitors_count,
-    count(lead_id) as leads_count,
-    count(lead_id) filter (where status_id = 142) as purchases_count,
-    sum(amount) as revenue
+    count(l.lead_id) as leads_count,
+    count(l.lead_id) filter (where l.status_id = 142) as purchases_count,
+    sum(l.amount) as revenue
 from sessions as s left join leads as l
     on s.visitor_id = l.visitor_id
 where s.source in ('vk', 'yandex')
@@ -64,16 +64,16 @@ order by week_cost);
 --Окупаются ли каналы? Расчет метрик
 with revenue_source as (
     select
-        source as utm_source,
+        s.source as utm_source,
         --utm_medium,
         --utm_campaign,
-        sum(amount) as revenue,
+        sum(l.amount) as revenue,
         count(s.visitor_id) as visitors_count,
-        count(lead_id) as leads_count,
-        count(lead_id) filter (where status_id = 142) as purchases_count
+        count(l.lead_id) as leads_count,
+        count(l.lead_id) filter (where l.status_id = 142) as purchases_count
     from
         sessions
-            as s
+as s
     left join leads as l
         on s.visitor_id = l.visitor_id
     group by utm_source
@@ -137,12 +137,12 @@ with tab_leads as (
         ) as r_number
     from
         sessions
-            as s
+as s
     left join leads as l
         on
             s.visitor_id = l.visitor_id
             and s.visit_date <= l.created_at
-    where medium != 'organic'
+    where s.medium != 'organic'
 )
 
 select
