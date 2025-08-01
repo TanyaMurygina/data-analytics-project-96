@@ -72,8 +72,7 @@ with revenue_source as (
         count(l.lead_id) as leads_count,
         count(l.lead_id) filter (where l.status_id = 142) as purchases_count
     from
-        sessions
-as s
+        sessions as s
     left join leads as l
         on s.visitor_id = l.visitor_id
     group by utm_source
@@ -136,8 +135,7 @@ with tab_leads as (
             order by s.visit_date desc
         ) as r_number
     from
-        sessions
-as s
+        sessions as s
     left join leads as l
         on
             s.visitor_id = l.visitor_id
