@@ -43,3 +43,4 @@ order by
     utm_source asc,
     utm_medium asc,
     utm_campaign asc;
+

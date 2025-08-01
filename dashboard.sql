@@ -118,7 +118,6 @@ order by
     rs.revenue desc nulls last,
     rs.utm_source asc;
 
-
 --За сколько дней с момента перехода по рекламе закрывается 90% лидов
 with tab_leads as (
     select
