@@ -118,5 +118,4 @@ order by
     a.visitors_count desc,
     a.utm_source asc,
     a.utm_medium asc,
-    a.utm_campaign asc
-limit 15;
+    a.utm_campaign asc;
