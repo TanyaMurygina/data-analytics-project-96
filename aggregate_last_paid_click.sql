@@ -88,11 +88,11 @@ order by ya.campaign_date)
 )
 
 select
-    a.visit_date,
+    CAST(a.visit_date AS DATE) as visit_date,
+    a.visitors_count,
     a.utm_source,
     a.utm_medium,
     a.utm_campaign,
-    a.visitors_count,
     cc.total_cost,
     a.leads_count,
     a.purchases_count,
