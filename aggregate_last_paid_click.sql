@@ -24,7 +24,7 @@ with tab_leads as (
     where medium != 'organic'
 ),
 
-vitrina1 as (
+vitrina as (
     select
         visitor_id,
         utm_source,
@@ -35,33 +35,43 @@ vitrina1 as (
         amount,
         closing_reason,
         status_id,
-        date_trunc('day', visit_date) as visit_date
+        visit_date
     from tab_leads
     where r_number = 1
-    order by
-        amount desc nulls last,
-        visit_date asc,
-        utm_source asc,
-        utm_medium asc,
-        utm_campaign asc
+),
+
+vitrina_cast_date as (
+    select
+        visitor_id,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        lead_id,
+        created_at,
+        amount,
+        closing_reason,
+        status_id,
+        cast(visit_date as DATE) as visit_date,
+        cast(created_at as DATE) as created_at_cast
+    from vitrina
 ),
 
 agreg as (
     select
+        visit_date,
         utm_source,
         utm_medium,
         utm_campaign,
-        date_trunc('day', visit_date) as visit_date,
         count(visitor_id) as visitors_count,
         count(lead_id) as leads_count,
         count(lead_id) filter (where status_id = 142) as purchases_count,
         sum(amount) as revenue
-    from vitrina1
+    from vitrina_cast_date
     group by visit_date, utm_source, utm_medium, utm_campaign
 ),
 
 cost_campaign as ((select
-    va.campaign_date,
+    cast(va.campaign_date as DATE) as campaign_date,
     sum(va.daily_spent) as total_cost,
     va.utm_source,
     va.utm_medium,
@@ -74,7 +84,7 @@ group by
 order by va.campaign_date)
 union all
 (select
-    ya.campaign_date,
+    cast(ya.campaign_date as DATE) as campaign_date,
     sum(ya.daily_spent) as total_cost,
     ya.utm_source,
     ya.utm_medium,
@@ -88,7 +98,7 @@ order by ya.campaign_date)
 )
 
 select
-    CAST(a.visit_date AS DATE) as visit_date,
+    a.visit_date,
     a.visitors_count,
     a.utm_source,
     a.utm_medium,
@@ -97,7 +107,7 @@ select
     a.leads_count,
     a.purchases_count,
     a.revenue
-from agreg as a inner join cost_campaign as cc
+from agreg as a left join cost_campaign as cc
     on
         a.visit_date = cc.campaign_date and a.utm_source = cc.utm_source
         and a.utm_medium = cc.utm_medium
@@ -108,4 +118,5 @@ order by
     a.visitors_count desc,
     a.utm_source asc,
     a.utm_medium asc,
-    a.utm_campaign asc;
+    a.utm_campaign asc
+limit 15;
